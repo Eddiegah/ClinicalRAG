@@ -1,0 +1,19 @@
+# Python
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+backend/.env
+
+# Chroma persisted index (rebuild with scripts/ingest.py)
+backend/data/chroma/
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+
+# Editors / OS
+.vscode/
+.DS_Store

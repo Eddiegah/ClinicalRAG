@@ -1,0 +1,44 @@
+# Each entry is a PubMed search query used to seed the corpus.
+# `limit` caps how many abstracts are pulled per topic.
+# Add a new topic by adding a line here, then re-run scripts/ingest.py.
+topics:
+  - query: "type 2 diabetes management guidelines"
+    limit: 20
+  - query: "hypertension treatment guidelines"
+    limit: 20
+  - query: "asthma treatment guidelines"
+    limit: 20
+  - query: "major depressive disorder screening and treatment"
+    limit: 20
+  - query: "antibiotic resistance clinical management"
+    limit: 20
+  - query: "adult vaccination schedule recommendations"
+    limit: 20
+  - query: "coronary heart disease risk factors"
+    limit: 20
+  - query: "sleep disorders and health outcomes"
+    limit: 20
+  - query: "obesity management clinical guidelines"
+    limit: 20
+  - query: "pregnancy nutrition recommendations"
+    limit: 20
+  - query: "chronic kidney disease management"
+    limit: 20
+  - query: "osteoarthritis treatment options"
+    limit: 20
+  - query: "migraine headache treatment"
+    limit: 20
+  - query: "anxiety disorder treatment guidelines"
+    limit: 20
+  - query: "influenza prevention and treatment"
+    limit: 20
+  - query: "chronic obstructive pulmonary disease management"
+    limit: 20
+  - query: "gastroesophageal reflux disease treatment"
+    limit: 20
+  - query: "iron deficiency anemia diagnosis and treatment"
+    limit: 20
+  - query: "smoking cessation interventions"
+    limit: 20
+  - query: "pediatric fever management guidelines"
+    limit: 20

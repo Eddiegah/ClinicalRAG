@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: clinicalrag-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # Get a free-tier key at https://console.anthropic.com/settings/keys
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: FRONTEND_ORIGINS
+        sync: false
