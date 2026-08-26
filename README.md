@@ -7,6 +7,7 @@ Every answer is grounded in a local corpus of real PubMed abstracts and cited in
 corpus doesn't cover the question, the backend refuses — deterministically, before the LLM
 is even called — instead of quietly hallucinating a plausible-sounding answer.
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-clinicalrag.vercel.app-6E56CF?logo=vercel&logoColor=white)](https://clinicalrag.vercel.app)
 [![CI](https://github.com/Eddiegah/ClinicalRAG/actions/workflows/ci.yml/badge.svg)](https://github.com/Eddiegah/ClinicalRAG/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](backend/requirements.txt)
@@ -16,15 +17,19 @@ is even called — instead of quietly hallucinating a plausible-sounding answer.
 [![Cost to run](https://img.shields.io/badge/cost%20to%20run-%240-brightgreen)](#quick-start)
 [![PubMed](https://img.shields.io/badge/Corpus-PubMed-blue)](https://pubmed.ncbi.nlm.nih.gov/)
 
+### **[→ Try it live: clinicalrag.vercel.app](https://clinicalrag.vercel.app)**
+
+Ask it something it should know ("first-line treatments for type 2 diabetes") and something
+it shouldn't ("treatment for zorblatt fever") to see both sides of the refusal gate. First
+request may take ~20–30s if the free backend has spun down from inactivity — everything
+after that is instant.
+
 > Educational demo, not medical advice. Every answer ends with a reminder to consult a real
 > healthcare professional.
 
-**[→ Click here to get a free Gemini API key (no credit card)](https://aistudio.google.com/apikey)**
-— that's the only thing standing between you and a running instance.
-
 ---
 
-## The problem this solves
+## What this is
 
 Ask a general-purpose chatbot a medical question and it answers from whatever it memorized
 during training — confidently, fluently, and with no way for you to check its work. Ask it
@@ -36,12 +41,14 @@ abstracts it actually retrieved for your question, it **must** cite which source
 claim, and if retrieval doesn't turn up anything relevant enough, it says so instead of
 guessing. And unlike most RAG tutorials, it runs entirely on free tiers — free LLM calls
 (Gemini), free embeddings (local ONNX, no API at all), free corpus (public PubMed), free
-vector store (ChromaDB, no hosted service).
+vector store (ChromaDB), and it's deployed on Render's + Vercel's free tiers too.
 
-## See it refuse
+## See it in action
 
-This is a real, captured response from the running app — no PubMed abstract about "zorblatt
-fever" exists, because it's not a real disease:
+Both of these are real, captured responses from the live deployment linked above.
+
+Ask about something outside the corpus — no PubMed abstract about "zorblatt fever" exists,
+because it's not a real disease:
 
 ```
 > What is the treatment for zorblatt fever?
@@ -52,24 +59,26 @@ This is general information from research abstracts, not medical advice — cons
 healthcare professional for diagnosis or treatment.
 ```
 
-Ask about something the corpus actually covers, and it answers with numbered citations back
-to real PubMed abstracts instead. The retrieved sources below are real (pulled live from the
-running corpus); the prose is an illustrative example of the format — the exact wording
-depends on the live Gemini call, which needs a `GEMINI_API_KEY`:
+Ask about something the corpus covers, and it answers with numbered citations back to real
+PubMed abstracts:
 
 ```
 > What are first-line treatments for type 2 diabetes?
 
-Metformin remains the preferred initial pharmacologic agent for most patients with type 2
-diabetes due to its efficacy, low hypoglycemia risk, and established cardiovascular safety
-profile [1]. Lifestyle interventions — diet and physical activity — are recommended
-alongside pharmacotherapy from diagnosis [2].
+Based on the provided sources, when prevention of type 2 diabetes fails, it is essential to
+commence glucose-lowering agents to reduce disease burden, prevent complications, and improve
+quality of life [1]. Effective management also relies on lifestyle modifications as part of a
+unifying framework, which include diet, exercise, blood glucose and glycated hemoglobin
+monitoring, and pharmacologic intervention when required [2]. Additionally, for regions like
+South Asia, aggressive management from diagnosis includes basic treatments such as metformin,
+low-cost statins, blood pressure-lowering drugs, and smoking cessation interventions [4].
 
 This is general information from research abstracts, not medical advice — consult a
 healthcare professional for diagnosis or treatment.
 
   [1] Management of type 2 diabetes: now and the future. — 62% match
-  [2] Combining clinical judgment with guidelines for the management of type 2 diabetes — 58% match
+  [2] Combining clinical judgment with guidelines for management of type 2 diabetes — 58% match
+  [4] Clinical management of type 2 diabetes in south Asia. — 56% match
 ```
 
 ## How it works
@@ -102,11 +111,12 @@ in-corpus questions score 0.58+ — the threshold sits at 0.5 to cleanly separat
 
 ## Features
 
+- 🌐 **Actually deployed** — a real backend (Render) + frontend (Vercel) behind the "Try it
+  live" link above, not just a "clone and run locally" repo
 - 🔒 **Grounded, not guessed** — answers come only from retrieved passages, never the model's
   own training data
 - 💸 **Actually free** — Gemini's free tier for generation, local ONNX embeddings (no API at
-  all), a free public corpus, and a self-hosted vector store — no paid service required to run
-  this end to end
+  all), a free public corpus, and free hosting — $0 to run this end to end
 - 📎 **Real citations** — every source links to its actual PubMed page
 - 🙅 **Honest refusal** — a tuned similarity gate blocks low-confidence answers before the LLM
   is ever called, so "I don't know" is a code path, not a prompt suggestion
@@ -115,6 +125,9 @@ in-corpus questions score 0.58+ — the threshold sits at 0.5 to cleanly separat
 - 🩹 **CORS-safe error handling** — a documented FastAPI/Starlette gotcha (unhandled
   exceptions bypass `CORSMiddleware` by default) is explicitly fixed and regression-tested,
   see [`app/main.py`](backend/app/main.py)
+- 📦 **Deploy-ready image** — the corpus and the embedding model are both baked into the
+  Docker image at build time, not lazily fetched on the first live request, so cold starts on
+  free-tier hosting are fast instead of triggering a live download
 - ⚡ **One-command setup** — `setup.sh` / `setup.ps1` create the venv, install everything, and
   seed your `.env` in one shot
 
@@ -127,9 +140,10 @@ in-corpus questions score 0.58+ — the threshold sits at 0.5 to cleanly separat
 | Corpus     | PubMed abstracts via NCBI E-utilities (no API key required)       |
 | Frontend   | Next.js 16, TypeScript, Tailwind                                  |
 | Testing    | pytest + pytest-asyncio, Vitest + Testing Library                 |
-| CI/CD      | GitHub Actions, Render (backend), Vercel-ready (frontend)          |
+| Hosting    | Render (backend, Docker), Vercel (frontend)                       |
+| CI/CD      | GitHub Actions                                                    |
 
-## Quick start
+## Quick start (run it yourself)
 
 ### 1. Get a free API key
 
@@ -153,12 +167,9 @@ Then open `backend/.env` and paste in your key:
 GEMINI_API_KEY=your-key-here
 ```
 
-Build the corpus — pulls ~375 real PubMed abstracts across 20 common clinical topics defined
-in [`data/topics.yaml`](backend/data/topics.yaml), takes a few minutes:
-
-```bash
-python scripts/ingest.py
-```
+The corpus (~375 PubMed abstracts across 20 common clinical topics) is already committed at
+`backend/data/chroma/`, so you can run immediately. To rebuild or extend it, see
+[Extending the corpus](#extending-the-corpus) below.
 
 Run the API and the tests:
 
@@ -194,15 +205,28 @@ Open http://localhost:3000 and ask it something.
 ## Extending the corpus
 
 Add a topic to [`backend/data/topics.yaml`](backend/data/topics.yaml) — just a PubMed search
-query and how many abstracts to pull — and re-run `scripts/ingest.py`. It upserts by PMID, so
-re-running is always safe.
+query and how many abstracts to pull — and re-run:
 
-## Deploying
+```bash
+python scripts/ingest.py
+```
 
-[`render.yaml`](render.yaml) at the repo root deploys the backend to
-[Render](https://render.com)'s free tier. Set `GEMINI_API_KEY` and `FRONTEND_ORIGINS` in
-the Render dashboard after the first deploy. Deploy the frontend separately (e.g. Vercel),
-pointing `NEXT_PUBLIC_API_URL` at the Render backend URL.
+It upserts by PMID, so re-running is always safe. `backend/data/chroma/` is committed to the
+repo (not gitignored) so a fresh clone or deploy has a working corpus immediately, instead of
+depending on PubMed's API being reachable at build time.
+
+## Deploying your own
+
+This exact setup is what's running behind the live demo link:
+
+- **Backend → [Render](https://render.com)**: [one-click deploy from `render.yaml`](https://render.com/deploy?repo=https://github.com/Eddiegah/ClinicalRAG).
+  Set `GEMINI_API_KEY` in the Render dashboard when prompted. The Docker image bakes in both
+  the corpus and the embedding model at build time (see [`backend/Dockerfile`](backend/Dockerfile)),
+  so cold starts are fast, not download-triggering.
+- **Frontend → [Vercel](https://vercel.com)**: import the repo, set the root directory to
+  `frontend`, and set `NEXT_PUBLIC_API_URL` to your Render backend's URL.
+- Once both are live, set `FRONTEND_ORIGINS` on Render to your Vercel URL so CORS allows the
+  frontend to call it.
 
 ## Roadmap / explicitly out of scope for v1
 
