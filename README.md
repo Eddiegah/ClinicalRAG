@@ -117,7 +117,11 @@ in-corpus questions score 0.58+ — the threshold sits at 0.5 to cleanly separat
   own training data
 - 💸 **Actually free** — Gemini's free tier for generation, local ONNX embeddings (no API at
   all), a free public corpus, and free hosting — $0 to run this end to end
-- 📎 **Real citations** — every source links to its actual PubMed page
+- 📎 **Real citations** — every source links to its actual PubMed page, rendered inline as
+  clickable badges, with an expandable source card per citation (title, journal, year,
+  similarity score)
+- ✨ **Polished chat UI** — smooth message/typing animations, markdown-aware answer rendering
+  (bullet lists, bold), and one-click example questions
 - 🙅 **Honest refusal** — a tuned similarity gate blocks low-confidence answers before the LLM
   is ever called, so "I don't know" is a code path, not a prompt suggestion
 - 🧪 **Tested** — pytest on the backend (retrieval thresholds, citation formatting, CORS-safe
@@ -167,7 +171,8 @@ Then open `backend/.env` and paste in your key:
 GEMINI_API_KEY=your-key-here
 ```
 
-The corpus (~375 PubMed abstracts across 20 common clinical topics) is already committed at
+The corpus (~1,165 PubMed abstracts across 74 topics — causes, symptoms, and treatment for
+each of ~35 common conditions) is already committed at
 `backend/data/chroma/`, so you can run immediately. To rebuild or extend it, see
 [Extending the corpus](#extending-the-corpus) below.
 
