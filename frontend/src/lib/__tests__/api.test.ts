@@ -42,4 +42,26 @@ describe("askQuestion", () => {
 
     await expect(askQuestion("anything")).rejects.toThrow("500");
   });
+
+  it("throws a friendly error instead of hanging forever when the request times out", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((_url: string, options: { signal: AbortSignal }) => {
+        return new Promise((_resolve, reject) => {
+          options.signal.addEventListener("abort", () => {
+            const err = new DOMException("Aborted", "AbortError");
+            reject(err);
+          });
+        });
+      })
+    );
+
+    const promise = askQuestion("anything");
+    const assertion = expect(promise).rejects.toThrow(/took too long/);
+    await vi.advanceTimersByTimeAsync(45_000);
+    await assertion;
+
+    vi.useRealTimers();
+  });
 });
