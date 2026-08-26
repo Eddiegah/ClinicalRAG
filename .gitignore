@@ -5,8 +5,9 @@ backend/**/__pycache__/
 *.pyc
 backend/.env
 
-# Chroma persisted index (rebuild with scripts/ingest.py)
-backend/data/chroma/
+# Chroma persisted index is intentionally committed (see backend/data/chroma/)
+# so a fresh deploy has a working corpus immediately, without depending on
+# PubMed's API at build time. Re-run scripts/ingest.py to refresh it.
 
 # Node / Next.js
 frontend/node_modules/
