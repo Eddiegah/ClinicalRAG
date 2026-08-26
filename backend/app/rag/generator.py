@@ -69,6 +69,15 @@ def answer_question(question: str) -> ChatResult:
     )
     answer_text = response.text or REFUSAL_MESSAGE
 
+    # The similarity gate only checks retrieval relevance, not whether the
+    # retrieved passages actually answer the question - e.g. abstracts about
+    # diabetes *management* can score high similarity against a question
+    # about diabetes *causes* without containing that answer. Gemini itself
+    # is instructed to refuse in that case; when it does, drop the sources
+    # too, so the UI doesn't show "5 sources" next to "I don't know."
+    if answer_text.strip().startswith(REFUSAL_MESSAGE.split("\n\n")[0]):
+        return ChatResult(answer=REFUSAL_MESSAGE, sources=[])
+
     return ChatResult(answer=answer_text, sources=[_to_source_ref(c) for c in relevant])
 
 

@@ -53,3 +53,32 @@ def test_answers_with_sources_when_relevant_chunk_found(
     assert len(result.sources) == 1
     assert result.sources[0].pmid == "12345678"
     assert result.sources[0].url == "https://pubmed.ncbi.nlm.nih.gov/12345678/"
+
+
+@patch("app.rag.generator._get_client")
+@patch("app.rag.generator.query_vectorstore")
+def test_drops_sources_when_model_refuses_despite_relevant_retrieval(
+    mock_query, mock_get_client, high_similarity_chunk
+):
+    # Passing the similarity gate only means the retrieved text is topically
+    # close - it doesn't guarantee it actually answers the question (e.g. a
+    # "management" abstract retrieved for a "causes" question). When Gemini
+    # itself decides to refuse, the UI shouldn't still show "N sources"
+    # next to "I don't know."
+    mock_query.return_value = [high_similarity_chunk]
+
+    mock_response = MagicMock()
+    mock_response.text = REFUSAL_MESSAGE
+    mock_client = MagicMock()
+    mock_client.models.generate_content.return_value = mock_response
+    mock_get_client.return_value = mock_client
+
+    original_key = settings.gemini_api_key
+    settings.gemini_api_key = "test-key"
+    try:
+        result = answer_question("What causes type 2 diabetes?")
+    finally:
+        settings.gemini_api_key = original_key
+
+    assert result.answer == REFUSAL_MESSAGE
+    assert result.sources == []

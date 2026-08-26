@@ -1,44 +1,199 @@
 # Each entry is a PubMed search query used to seed the corpus.
 # `limit` caps how many abstracts are pulled per topic.
 # Add a new topic by adding a line here, then re-run scripts/ingest.py.
+#
+# Deliberately covers three angles per condition (causes/risk factors,
+# symptoms/diagnosis, management/treatment) rather than just treatment —
+# a "management guidelines" abstract often doesn't answer a "what causes
+# this" question even though it's topically similar, which used to make
+# the assistant refuse questions it should've been able to answer.
 topics:
+  # --- Type 2 diabetes ---
   - query: "type 2 diabetes management guidelines"
     limit: 20
+  - query: "type 2 diabetes causes and risk factors pathophysiology"
+    limit: 20
+  - query: "type 2 diabetes symptoms diagnosis criteria"
+    limit: 15
+
+  # --- Hypertension ---
   - query: "hypertension treatment guidelines"
     limit: 20
+  - query: "hypertension causes and risk factors"
+    limit: 15
+  - query: "hypertension diagnosis and blood pressure measurement"
+    limit: 15
+
+  # --- Asthma ---
   - query: "asthma treatment guidelines"
     limit: 20
+  - query: "asthma causes triggers and risk factors"
+    limit: 15
+  - query: "asthma symptoms diagnosis and classification"
+    limit: 15
+
+  # --- Depression ---
   - query: "major depressive disorder screening and treatment"
     limit: 20
+  - query: "major depressive disorder causes and risk factors"
+    limit: 15
+
+  # --- Antibiotic resistance ---
   - query: "antibiotic resistance clinical management"
     limit: 20
+  - query: "antibiotic resistance mechanisms and causes"
+    limit: 15
+
+  # --- Vaccination ---
   - query: "adult vaccination schedule recommendations"
     limit: 20
+
+  # --- Coronary heart disease ---
   - query: "coronary heart disease risk factors"
     limit: 20
+  - query: "coronary heart disease diagnosis and treatment"
+    limit: 15
+
+  # --- Sleep disorders ---
   - query: "sleep disorders and health outcomes"
     limit: 20
+  - query: "insomnia causes diagnosis and treatment"
+    limit: 15
+
+  # --- Obesity ---
   - query: "obesity management clinical guidelines"
     limit: 20
+  - query: "obesity causes and risk factors"
+    limit: 15
+
+  # --- Pregnancy nutrition ---
   - query: "pregnancy nutrition recommendations"
     limit: 20
+
+  # --- Chronic kidney disease ---
   - query: "chronic kidney disease management"
     limit: 20
+  - query: "chronic kidney disease causes and risk factors"
+    limit: 15
+
+  # --- Osteoarthritis ---
   - query: "osteoarthritis treatment options"
     limit: 20
+  - query: "osteoarthritis causes and risk factors"
+    limit: 15
+
+  # --- Migraine ---
   - query: "migraine headache treatment"
     limit: 20
+  - query: "migraine causes triggers and pathophysiology"
+    limit: 15
+
+  # --- Anxiety ---
   - query: "anxiety disorder treatment guidelines"
     limit: 20
+  - query: "anxiety disorder causes and risk factors"
+    limit: 15
+
+  # --- Influenza ---
   - query: "influenza prevention and treatment"
     limit: 20
+
+  # --- COPD ---
   - query: "chronic obstructive pulmonary disease management"
     limit: 20
+  - query: "chronic obstructive pulmonary disease causes and risk factors"
+    limit: 15
+
+  # --- GERD ---
   - query: "gastroesophageal reflux disease treatment"
     limit: 20
+  - query: "gastroesophageal reflux disease causes and diagnosis"
+    limit: 15
+
+  # --- Iron deficiency anemia ---
   - query: "iron deficiency anemia diagnosis and treatment"
     limit: 20
+  - query: "iron deficiency anemia causes"
+    limit: 15
+
+  # --- Smoking cessation ---
   - query: "smoking cessation interventions"
     limit: 20
+
+  # --- Pediatric fever ---
   - query: "pediatric fever management guidelines"
     limit: 20
+
+  # --- Additional common conditions ---
+  - query: "stroke causes risk factors and prevention"
+    limit: 20
+  - query: "stroke diagnosis and acute treatment"
+    limit: 15
+  - query: "epilepsy causes diagnosis and treatment"
+    limit: 20
+  - query: "hypothyroidism causes symptoms and treatment"
+    limit: 20
+  - query: "hyperthyroidism causes symptoms and treatment"
+    limit: 15
+  - query: "eczema atopic dermatitis causes and treatment"
+    limit: 15
+  - query: "psoriasis causes and treatment"
+    limit: 15
+  - query: "urinary tract infection diagnosis and treatment"
+    limit: 20
+  - query: "hepatitis B and C diagnosis and management"
+    limit: 15
+  - query: "HIV diagnosis treatment and prevention"
+    limit: 20
+  - query: "breast cancer screening and risk factors"
+    limit: 20
+  - query: "colorectal cancer screening and risk factors"
+    limit: 15
+  - query: "cervical cancer screening and prevention"
+    limit: 15
+  - query: "seasonal allergic rhinitis causes and treatment"
+    limit: 15
+  - query: "gout causes diagnosis and treatment"
+    limit: 15
+  - query: "celiac disease diagnosis and management"
+    limit: 15
+  - query: "irritable bowel syndrome causes and treatment"
+    limit: 15
+  - query: "polycystic ovary syndrome causes and treatment"
+    limit: 15
+  - query: "osteoporosis causes risk factors and treatment"
+    limit: 20
+  - query: "anemia causes diagnosis and classification"
+    limit: 15
+  - query: "acne vulgaris causes and treatment"
+    limit: 15
+  - query: "peptic ulcer disease causes and treatment"
+    limit: 15
+  - query: "chronic low back pain causes and management"
+    limit: 15
+  - query: "attention deficit hyperactivity disorder diagnosis and treatment"
+    limit: 15
+  - query: "bipolar disorder diagnosis and treatment"
+    limit: 15
+  - query: "atrial fibrillation causes diagnosis and treatment"
+    limit: 15
+  - query: "heart failure causes diagnosis and management"
+    limit: 20
+  - query: "pneumonia causes diagnosis and treatment"
+    limit: 15
+  - query: "tuberculosis diagnosis and treatment"
+    limit: 15
+  - query: "dementia and Alzheimer's disease causes and management"
+    limit: 20
+  - query: "Parkinson's disease causes symptoms and treatment"
+    limit: 15
+  - query: "multiple sclerosis causes and treatment"
+    limit: 15
+  - query: "eating disorders diagnosis and treatment"
+    limit: 15
+  - query: "vitamin D deficiency causes and treatment"
+    limit: 15
+  - query: "childhood obesity causes and prevention"
+    limit: 15
+  - query: "autism spectrum disorder diagnosis and management"
+    limit: 15
