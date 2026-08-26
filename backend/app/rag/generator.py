@@ -2,20 +2,35 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from anthropic import Anthropic
+from google import genai
+from google.genai import types
 
 from app.config import settings
 from app.rag.prompts import REFUSAL_MESSAGE, SYSTEM_PROMPT, build_user_message
 from app.rag.vectorstore import RetrievedChunk, query as query_vectorstore
 
-_client: Anthropic | None = None
+REQUEST_TIMEOUT_MS = 20_000
+RETRY_ATTEMPTS = 2
 
 
-def _get_client() -> Anthropic:
-    global _client
-    if _client is None:
-        _client = Anthropic(api_key=settings.anthropic_api_key)
-    return _client
+# Keyed by API key rather than a single lru_cache slot so tests can swap
+# settings.gemini_api_key at runtime without a stale client sticking around.
+_clients: dict[str, genai.Client] = {}
+
+
+def _get_client() -> genai.Client | None:
+    api_key = settings.gemini_api_key
+    if not api_key:
+        return None
+    if api_key not in _clients:
+        _clients[api_key] = genai.Client(
+            api_key=api_key,
+            http_options=types.HttpOptions(
+                timeout=REQUEST_TIMEOUT_MS,
+                retry_options=types.HttpRetryOptions(attempts=RETRY_ATTEMPTS),
+            ),
+        )
+    return _clients[api_key]
 
 
 @dataclass
@@ -41,23 +56,18 @@ def answer_question(question: str) -> ChatResult:
     if not relevant:
         return ChatResult(answer=REFUSAL_MESSAGE, sources=[])
 
-    if not settings.anthropic_api_key:
+    client = _get_client()
+    if client is None:
         raise RuntimeError(
-            "ANTHROPIC_API_KEY is not set on the backend. Add it to backend/.env and restart."
+            "GEMINI_API_KEY is not set on the backend. Add it to backend/.env and restart."
         )
 
-    response = _get_client().messages.create(
+    response = client.models.generate_content(
         model=settings.clinicalrag_model,
-        max_tokens=700,
-        system=SYSTEM_PROMPT,
-        messages=[
-            {
-                "role": "user",
-                "content": build_user_message(question, [c.text for c in relevant]),
-            }
-        ],
+        contents=build_user_message(question, [c.text for c in relevant]),
+        config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
     )
-    answer_text = "".join(block.text for block in response.content if block.type == "text")
+    answer_text = response.text or REFUSAL_MESSAGE
 
     return ChatResult(answer=answer_text, sources=[_to_source_ref(c) for c in relevant])
 

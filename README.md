@@ -1,6 +1,7 @@
 # ClinicalRAG
 
-**A clinical Q&A assistant that would rather say "I don't know" than make something up.**
+**A clinical Q&A assistant that would rather say "I don't know" than make something up —
+and costs $0 to run.**
 
 Every answer is grounded in a local corpus of real PubMed abstracts and cited inline. If the
 corpus doesn't cover the question, the backend refuses — deterministically, before the LLM
@@ -11,11 +12,15 @@ is even called — instead of quietly hallucinating a plausible-sounding answer.
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](backend/requirements.txt)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white)](frontend/package.json)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](backend/app/main.py)
-[![Powered by Claude](https://img.shields.io/badge/Powered%20by-Claude-D97757)](https://www.anthropic.com/claude)
+[![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Gemini-8E75B2?logo=googlegemini&logoColor=white)](https://aistudio.google.com/apikey)
+[![Cost to run](https://img.shields.io/badge/cost%20to%20run-%240-brightgreen)](#quick-start)
 [![PubMed](https://img.shields.io/badge/Corpus-PubMed-blue)](https://pubmed.ncbi.nlm.nih.gov/)
 
 > Educational demo, not medical advice. Every answer ends with a reminder to consult a real
 > healthcare professional.
+
+**[→ Click here to get a free Gemini API key (no credit card)](https://aistudio.google.com/apikey)**
+— that's the only thing standing between you and a running instance.
 
 ---
 
@@ -29,7 +34,9 @@ rather than admit it doesn't know.
 ClinicalRAG takes the opposite approach: it can **only** answer from a corpus of real PubMed
 abstracts it actually retrieved for your question, it **must** cite which source backs every
 claim, and if retrieval doesn't turn up anything relevant enough, it says so instead of
-guessing.
+guessing. And unlike most RAG tutorials, it runs entirely on free tiers — free LLM calls
+(Gemini), free embeddings (local ONNX, no API at all), free corpus (public PubMed), free
+vector store (ChromaDB, no hosted service).
 
 ## See it refuse
 
@@ -48,7 +55,7 @@ healthcare professional for diagnosis or treatment.
 Ask about something the corpus actually covers, and it answers with numbered citations back
 to real PubMed abstracts instead. The retrieved sources below are real (pulled live from the
 running corpus); the prose is an illustrative example of the format — the exact wording
-depends on the live Claude call, which needs an `ANTHROPIC_API_KEY`:
+depends on the live Gemini call, which needs a `GEMINI_API_KEY`:
 
 ```
 > What are first-line treatments for type 2 diabetes?
@@ -80,14 +87,14 @@ flowchart LR
         F --> D
         D -->|top-k retrieval| G{Best match ≥<br/>similarity threshold?}
         G -->|No| H[Refuse — no LLM call]
-        G -->|Yes| I[Claude answers ONLY<br/>from retrieved sources,<br/>cites every claim as (n)]
+        G -->|Yes| I[Gemini answers ONLY<br/>from retrieved sources,<br/>cites every claim as (n)]
         I --> J[Next.js chat UI:<br/>answer + expandable sources]
         H --> J
     end
 ```
 
 The refusal path is enforced in code, not just prompted for: if nothing clears the similarity
-threshold, `answer_question()` returns the fixed refusal message and **never calls Claude at
+threshold, `answer_question()` returns the fixed refusal message and **never calls the LLM at
 all** — see [`app/rag/generator.py`](backend/app/rag/generator.py). That threshold was tuned
 empirically, not guessed: fabricated-but-medical-sounding queries (e.g. "zorblatt fever")
 score ~0.42–0.49 against real fever abstracts on lexical overlap alone, while genuine
@@ -97,38 +104,53 @@ in-corpus questions score 0.58+ — the threshold sits at 0.5 to cleanly separat
 
 - 🔒 **Grounded, not guessed** — answers come only from retrieved passages, never the model's
   own training data
+- 💸 **Actually free** — Gemini's free tier for generation, local ONNX embeddings (no API at
+  all), a free public corpus, and a self-hosted vector store — no paid service required to run
+  this end to end
 - 📎 **Real citations** — every source links to its actual PubMed page
 - 🙅 **Honest refusal** — a tuned similarity gate blocks low-confidence answers before the LLM
   is ever called, so "I don't know" is a code path, not a prompt suggestion
-- 🧠 **Local embeddings** — ONNX MiniLM-L6-v2 runs on-device via ChromaDB, no embedding API
-  cost
 - 🧪 **Tested** — pytest on the backend (retrieval thresholds, citation formatting, CORS-safe
   error handling), Vitest on the frontend, both run in CI on every push
 - 🩹 **CORS-safe error handling** — a documented FastAPI/Starlette gotcha (unhandled
   exceptions bypass `CORSMiddleware` by default) is explicitly fixed and regression-tested,
   see [`app/main.py`](backend/app/main.py)
+- ⚡ **One-command setup** — `setup.sh` / `setup.ps1` create the venv, install everything, and
+  seed your `.env` in one shot
 
 ## Stack
 
-| Layer      | Tech                                                            |
-| ---------- | ---------------------------------------------------------------- |
-| Backend    | FastAPI, ChromaDB (persisted, local), `anthropic` SDK (Claude)  |
-| Embeddings | ONNX MiniLM-L6-v2 (bundled with Chroma — free, runs locally)    |
-| Corpus     | PubMed abstracts via NCBI E-utilities (no API key required)     |
-| Frontend   | Next.js 16, TypeScript, Tailwind                                |
-| Testing    | pytest + pytest-asyncio, Vitest + Testing Library               |
-| CI/CD      | GitHub Actions, Render (backend), Vercel-ready (frontend)        |
+| Layer      | Tech                                                              |
+| ---------- | ------------------------------------------------------------------ |
+| Backend    | FastAPI, ChromaDB (persisted, local), `google-genai` SDK (Gemini) |
+| Embeddings | ONNX MiniLM-L6-v2 (bundled with Chroma — free, runs locally)      |
+| Corpus     | PubMed abstracts via NCBI E-utilities (no API key required)       |
+| Frontend   | Next.js 16, TypeScript, Tailwind                                  |
+| Testing    | pytest + pytest-asyncio, Vitest + Testing Library                 |
+| CI/CD      | GitHub Actions, Render (backend), Vercel-ready (frontend)          |
 
 ## Quick start
 
-### 1. Backend
+### 1. Get a free API key
+
+**[aistudio.google.com/apikey](https://aistudio.google.com/apikey)** — sign in with any
+Google account, click "Create API key." No credit card, no trial period, genuinely free tier.
+
+### 2. Backend
+
+The setup script creates the venv, installs everything, and seeds `.env` for you:
 
 ```bash
 cd backend
-python -m venv venv
-./venv/Scripts/activate   # or source venv/bin/activate on macOS/Linux
-pip install -r requirements-dev.txt
-cp .env.example .env      # then add your ANTHROPIC_API_KEY
+./setup.sh          # macOS/Linux/Git Bash
+# or on native PowerShell:
+# .\setup.ps1
+```
+
+Then open `backend/.env` and paste in your key:
+
+```
+GEMINI_API_KEY=your-key-here
 ```
 
 Build the corpus — pulls ~375 real PubMed abstracts across 20 common clinical topics defined
@@ -145,7 +167,20 @@ uvicorn app.main:app --reload
 pytest
 ```
 
-### 2. Frontend
+<details>
+<summary>Manual setup (if you'd rather not run the script)</summary>
+
+```bash
+cd backend
+python -m venv venv
+./venv/Scripts/activate   # or source venv/bin/activate on macOS/Linux
+pip install -r requirements-dev.txt
+cp .env.example .env      # then add your GEMINI_API_KEY
+```
+
+</details>
+
+### 3. Frontend
 
 ```bash
 cd frontend
@@ -165,7 +200,7 @@ re-running is always safe.
 ## Deploying
 
 [`render.yaml`](render.yaml) at the repo root deploys the backend to
-[Render](https://render.com)'s free tier. Set `ANTHROPIC_API_KEY` and `FRONTEND_ORIGINS` in
+[Render](https://render.com)'s free tier. Set `GEMINI_API_KEY` and `FRONTEND_ORIGINS` in
 the Render dashboard after the first deploy. Deploy the frontend separately (e.g. Vercel),
 pointing `NEXT_PUBLIC_API_URL` at the Render backend URL.
 

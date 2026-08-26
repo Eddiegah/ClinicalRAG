@@ -25,7 +25,7 @@ export default function Home() {
       const message = err instanceof Error ? err.message : "Unknown error";
       setError(
         `Something went wrong talking to the backend (${message}). Make sure it's running ` +
-          "and, for real answers, that ANTHROPIC_API_KEY is set in backend/.env."
+          "and, for real answers, that GEMINI_API_KEY is set in backend/.env."
       );
     } finally {
       setLoading(false);

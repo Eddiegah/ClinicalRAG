@@ -7,8 +7,8 @@ services:
     plan: free
     healthCheckPath: /health
     envVars:
-      # Get a free-tier key at https://console.anthropic.com/settings/keys
-      - key: ANTHROPIC_API_KEY
+      # Get a free key (no credit card) at https://aistudio.google.com/apikey
+      - key: GEMINI_API_KEY
         sync: false
       - key: FRONTEND_ORIGINS
         sync: false

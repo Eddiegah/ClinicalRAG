@@ -37,18 +37,17 @@ def test_answers_with_sources_when_relevant_chunk_found(
     mock_query.return_value = [high_similarity_chunk]
 
     mock_response = MagicMock()
-    mock_text_block = MagicMock(type="text", text="Metformin is first-line therapy [1].")
-    mock_response.content = [mock_text_block]
+    mock_response.text = "Metformin is first-line therapy [1]."
     mock_client = MagicMock()
-    mock_client.messages.create.return_value = mock_response
+    mock_client.models.generate_content.return_value = mock_response
     mock_get_client.return_value = mock_client
 
-    original_key = settings.anthropic_api_key
-    settings.anthropic_api_key = "test-key"
+    original_key = settings.gemini_api_key
+    settings.gemini_api_key = "test-key"
     try:
         result = answer_question("What is first-line therapy for type 2 diabetes?")
     finally:
-        settings.anthropic_api_key = original_key
+        settings.gemini_api_key = original_key
 
     assert "[1]" in result.answer
     assert len(result.sources) == 1
