@@ -28,3 +28,21 @@ def low_similarity_chunk(high_similarity_chunk: RetrievedChunk) -> RetrievedChun
         year="2020",
         similarity=0.10,
     )
+
+
+@pytest.fixture
+def borderline_similarity_chunk(high_similarity_chunk: RetrievedChunk) -> RetrievedChunk:
+    # Real-world case: a made-up condition phrased with genuine medical
+    # vocabulary ("zorblatt fever") scores ~0.42-0.49 against real fever
+    # abstracts purely on lexical overlap — high enough to have tripped the
+    # old 0.35 threshold, but well below where real in-corpus questions
+    # land (0.58+). Regression guard for that threshold choice.
+    return RetrievedChunk(
+        pmid="11223344",
+        title="Symptomatic fever management in children: A systematic review",
+        text="Symptomatic fever management in children: A systematic review\n\n"
+        "This review covers antipyretic use and supportive care for pediatric fever.",
+        journal="Pediatrics",
+        year="2022",
+        similarity=0.46,
+    )

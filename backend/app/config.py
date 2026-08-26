@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     clinicalrag_model: str = "claude-haiku-4-5"
     frontend_origins: str = "http://localhost:3000"
     clinicalrag_top_k: int = 5
-    clinicalrag_min_similarity: float = 0.35
+    clinicalrag_min_similarity: float = 0.5
 
     @property
     def allowed_origins(self) -> list[str]:

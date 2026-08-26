@@ -17,6 +17,18 @@ def test_refuses_when_no_chunk_passes_similarity_threshold(
     assert result.sources == []
 
 
+@patch("app.rag.generator.query_vectorstore")
+def test_refuses_on_borderline_similarity_from_fake_condition(
+    mock_query, borderline_similarity_chunk
+):
+    mock_query.return_value = [borderline_similarity_chunk]
+
+    result = answer_question("What is the treatment for zorblatt fever?")
+
+    assert result.answer == REFUSAL_MESSAGE
+    assert result.sources == []
+
+
 @patch("app.rag.generator._get_client")
 @patch("app.rag.generator.query_vectorstore")
 def test_answers_with_sources_when_relevant_chunk_found(
