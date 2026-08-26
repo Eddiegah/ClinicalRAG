@@ -17,6 +17,15 @@ export const metadata: Metadata = {
   description: "A citation-grounded clinical Q&A assistant built on retrieval-augmented generation.",
 };
 
+export function generateViewport() {
+  return {
+    themeColor: [
+      { media: "(prefers-color-scheme: light)", color: "#f7f7fb" },
+      { media: "(prefers-color-scheme: dark)", color: "#0a0a0f" },
+    ],
+  };
+}
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html

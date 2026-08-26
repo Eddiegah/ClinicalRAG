@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f7fb;
+  --surface: #ffffff;
+  --surface-2: #f1f1f7;
+  --foreground: #14141c;
+  --muted: #6b6b7b;
+  --border: #e4e4ee;
+  --accent-a: #6e56cf;
+  --accent-b: #8e75b2;
+  --accent-soft: rgba(110, 86, 207, 0.1);
+  --user-bubble: #14141c;
+  --user-bubble-fg: #f7f7fb;
 }
 
 @theme inline {
@@ -14,13 +23,85 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0a0a0f;
+    --surface: #16161f;
+    --surface-2: #1c1c28;
+    --foreground: #f2f2f7;
+    --muted: #8a8a9a;
+    --border: #27272f;
+    --accent-a: #8b7ae8;
+    --accent-b: #a78bd6;
+    --accent-soft: rgba(139, 122, 232, 0.14);
+    --user-bubble: #f2f2f7;
+    --user-bubble-fg: #0a0a0f;
   }
+}
+
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* Slim, unobtrusive scrollbar for the chat column */
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.chat-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+.chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.accent-gradient {
+  background-image: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+}
+.accent-gradient-text {
+  background-image: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes pulse-dot {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.typing-dot {
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+@keyframes status-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-soft);
+  }
+  50% {
+    box-shadow: 0 0 0 5px transparent;
+  }
+}
+.status-dot {
+  animation: status-glow 2.4s ease-in-out infinite;
 }
