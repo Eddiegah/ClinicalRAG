@@ -30,8 +30,8 @@ def main() -> None:
         try:
             result = collection.query(query_texts=[query], n_results=min(50, total))
             count = len(result["ids"][0])
-        except:
-            count = "error"
+        except Exception as exc:
+            count = f"error: {exc}"
         print(f"{count:>4}  {query}")
 
 
